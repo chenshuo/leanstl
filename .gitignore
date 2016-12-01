@@ -1,4 +1,5 @@
 *.swp
 core
+
+code/bin/
 site/
-tutorial/bin/

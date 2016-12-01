@@ -19,6 +19,6 @@ Non-goals:
 
 Tested on Debian 8 with GCC 4.9.2
 
-    docs/         # This document
-    tutorial/     # Code
+    code/         # Code
         build.sh  # build all executables
+    docs/         # This document

@@ -8,7 +8,7 @@ def include(command, out):
 	(_, src, ranges) = command.split()
 	print '  include', src
 	out.write('```cpp\n')
-	with open('tutorial/'+src) as f:
+	with open('code/'+src) as f:
 		lines = f.readlines()
 		for r in ranges.split(','):
 			(start, end) = r.split('-')
