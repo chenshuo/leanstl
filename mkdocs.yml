@@ -1,0 +1,6 @@
+site_name: Write your own lean STL
+theme: readthedocs
+pages:
+  - Home: index.md
+  - Containers:
+    - List: list.md
