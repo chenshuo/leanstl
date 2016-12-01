@@ -26,18 +26,16 @@ class list
 
   ~list()
   {
-    for (list_node_base* n = head_.next; n != &head_;)
+    // STILL WRONG: use-after-free
+    for (list_node_base* n = head_.prev; n != &head_; n = n->prev)
     {
-      list_node* tod = static_cast<list_node*>(n);
-      n = n->next;
-      delete tod;
+      delete static_cast<list_node*>(n);
     }
   }
 
   list(const list& rhs) = delete;
   void operator=(const list& rhs) = delete;
 
-  // Effective Modern C++, Item 41.
   void push_front(T x)
   {
     list_node* n = new list_node(std::move(x));
@@ -68,17 +66,9 @@ class list
 
 ///////////////////////////////////////  main()  ////////////////////////////
 
-#include <string>
-
 int main()
 {
   leanstl::list<int> li;
   li.push_front(43);
   printf("front=%d\n", li.front());
-  li.push_front(82);
-  printf("front=%d\n", li.front());
-
-  leanstl::list<std::string> ls;
-  ls.push_front("hello");
-  printf("front=%s\n", ls.front().c_str());
 }

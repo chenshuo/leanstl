@@ -22,22 +22,7 @@ struct list_node : list_node_base
 
 class template `list<T>`
 
-```cpp
-template <typename T>
-class list
-{
- public:
-  list()
-  {
-    head_.next = &head_;
-    head_.prev = &head_;
-  }
-
- private:
-  list_node_base head_;
-  size_t size_ = 0;
-};
-```
+@i list00.cc 16-25,32-35
 
 ![node](listnode.png)
 
@@ -47,39 +32,7 @@ Doubly linked list:
 ## list00: object sizes
 
 list00.cc:
-```cpp
-namespace leanstl
-{
-
-struct list_node_base
-{
-  list_node_base* next;
-  list_node_base* prev;
-};
-
-template <typename T>
-class list
-{
- public:
-  list()
-  {
-    head_.next = &head_;
-    head_.prev = &head_;
-  }
-
-  // FIXME: change to private
-  struct list_node : list_node_base
-  {
-    T value_;
-  };
-
- private:
-  list_node_base head_;
-  size_t size_ = 0;
-};
-
-}  // namespace leanstl
-```
+@i list00.cc 7-37
 
 Object sizes on 64-bit Linux.
 
@@ -133,80 +86,14 @@ TODO
 
 ## list01: `push_front`
 
-```cpp
-template <typename T>
-class list
-{
- public:
-  list()
-  {
-    head_.next = &head_;
-    head_.prev = &head_;
-  }
-
-  ~list()
-  {
-    for (list_node_base* n = head_.next; n != &head_;)
-    {
-      list_node* tod = static_cast<list_node*>(n);
-      n = n->next;
-      delete tod;
-    }
-  }
-
-  list(const list& rhs) = delete;
-  void operator=(const list& rhs) = delete;
-
-  // Effective Modern C++, Item 41.
-  void push_front(T x)
-  {
-    list_node* n = new list_node(std::move(x));
-    n->next = head_.next;
-    n->next->prev = n;
-    head_.next = n;
-    n->prev = &head_;
-    size_++;
-  }
-
-  T& front()
-  {
-    return static_cast<list_node*>(head_.next)->value_;
-  }
-
- private:
-  struct list_node : list_node_base
-  {
-    T value_;
-    list_node(T&& x) : value_(std::move(x)) {}
-  };
-
-  list_node_base head_;
-  size_t size_ = 0;
-};
-```
+@i list01.cc 17-65
 
 ### Mistake: use-after-free
 
 list01err0.cc
-```cpp
-  ~list()
-  {
-    // WRONG: use-after-free
-    for (list_node_base* n = head_.next; n != &head_; n = n->next)
-    {
-      delete static_cast<list_node*>(n);
-    }
-  }
-```
+@i list01err0.cc 27-34
 
-```cpp
-int main()
-{
-  leanstl::list<int> li;
-  li.push_front(43);
-  printf("front=%d\n", li.front());
-}
-```
+@i list01err0.cc 69-74
 ```
 $ tutorial/bin/list01err0
 front=43
@@ -240,16 +127,7 @@ $3 = {
 Some clever person finds a way to avoid coredump, by deleting from tail to head.
 
 list01err0a.cc
-```cpp
-  ~list()
-  {
-    // STILL WRONG: use-after-free
-    for (list_node_base* n = head_.prev; n != &head_; n = n->prev)
-    {
-      delete static_cast<list_node*>(n);
-    }
-  }
-```
+@i list01err0a.cc 27-34
 
 Valgrind
 ```
@@ -294,18 +172,7 @@ SUMMARY: AddressSanitizer: heap-use-after-free /home/schen/leanstl/tutorial/list
 ### Mistake: delete pointer of `list_node_base*`
 
 list01err1.cc
-```cpp
-  ~list()
-  {
-    // WRONG: delete base pointer without virtual dtor
-    for (list_node_base* n = head_.next; n != &head_;)
-    {
-      list_node_base* tod = n;
-      n = n->next;
-      delete tod;
-    }
-  }
-```
+@i list01err1.cc 27-36
 
 TODO: quote standard on this undefined behavior.
 
@@ -347,40 +214,7 @@ Execrise: try memory checker with this double error.
 
 ### list01a: `list_node_base` with `protected` destructor
 
-```cpp
-struct list_node_base
-{
-  list_node_base* next;
-  list_node_base* prev;
-
-  // prevent deleting a pointer of list_node_base* which actually points to a list_node<T>
-  // GCC had bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54812 on this, fixed in 4.9.0
- protected:
-  ~list_node_base() = default;
-};
-
-template <typename T>
-struct list_node : list_node_base
-{
-  T value_;
-  list_node(T&& x) : value_(std::move(x)) {}
-};
-
-template <typename T>
-class list
-{
- public:
-  list()
-    : head_(0)
-  {
-    head_.next = &head_;
-    head_.prev = &head_;
-  }
-
- private:
-  list_node<size_t> head_;  // size is head_.value_
-};
-```
+@i list01a.cc 11-39,68-70
 
 TODO: Why not virtual dtor?
 

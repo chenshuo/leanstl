@@ -57,7 +57,7 @@ class list
     n->next->prev = n;
     head_.next = n;
     n->prev = &head_;
-    head_.value_++;
+    head_.value_++;  // size++
   }
 
   T& front()
@@ -66,7 +66,7 @@ class list
   }
 
  private:
-  list_node<size_t> head_;
+  list_node<size_t> head_;  // size is head_.value_
 };
 
 }  // namespace leanstl

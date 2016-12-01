@@ -66,8 +66,6 @@ class list
 
 ///////////////////////////////////////  main()  ////////////////////////////
 
-#include <string>
-
 int main()
 {
   leanstl::list<int> li;

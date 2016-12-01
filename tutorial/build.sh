@@ -13,5 +13,7 @@ $CXX $CXXFLAGS list00.cc -m32 -o $OUT/list00m32
 
 $CXX $CXXFLAGS list01.cc -o $OUT/list01
 $CXX $CXXFLAGS list01err0.cc -o $OUT/list01err0
+$CXX $CXXFLAGS -fsanitize=address list01err0.cc -o $OUT/list01err0asan
+$CXX $CXXFLAGS list01err0a.cc -o $OUT/list01err0a
 $CXX $CXXFLAGS list01err1.cc -o $OUT/list01err1
 $CXX $CXXFLAGS list01a.cc -o $OUT/list01a

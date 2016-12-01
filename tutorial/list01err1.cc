@@ -26,7 +26,7 @@ class list
 
   ~list()
   {
-    // WRONG: delete base but no virtual dtor
+    // WRONG: delete base pointer without virtual dtor
     for (list_node_base* n = head_.next; n != &head_;)
     {
       list_node_base* tod = n;
