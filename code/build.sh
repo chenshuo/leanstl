@@ -18,3 +18,7 @@ $CXX $CXXFLAGS list01err0a.cc -o $OUT/list01err0a
 $CXX $CXXFLAGS list01err1.cc -o $OUT/list01err1
 $CXX $CXXFLAGS list01alt.cc -o $OUT/list01alt
 $CXX $CXXFLAGS list01more.cc -o $OUT/list01more
+
+$CXX $CXXFLAGS list02.cc -o $OUT/list02
+
+$CXX $CXXFLAGS list03.cc -o $OUT/list03
