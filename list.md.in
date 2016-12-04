@@ -212,9 +212,9 @@ Double mistake:
 ```
 Execrise: try memory checker with this double error.
 
-### list01a: `list_node_base` with `protected` destructor
+### list01alt: `list_node_base` with `protected` destructor
 
-@i list01a.cc 11-39,68-70
+@i list01alt.cc 11-39,68-70
 
 TODO: Why not virtual dtor?
 

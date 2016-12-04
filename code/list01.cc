@@ -68,6 +68,7 @@ class list
 
 ///////////////////////////////////////  main()  ////////////////////////////
 
+#include <memory>
 #include <string>
 
 int main()
@@ -81,4 +82,8 @@ int main()
   leanstl::list<std::string> ls;
   ls.push_front("hello");
   printf("front=%s\n", ls.front().c_str());
+
+  leanstl::list<std::unique_ptr<double>> lu;
+  lu.push_front(std::unique_ptr<double>(new double(5.0)));  // make_unique in C++14
+  printf("front=%f\n", *lu.front());
 }

@@ -3,6 +3,8 @@
 # Preprocess markdown
 
 import re, sys
+import livereload
+import tornado.ioloop
 
 def include(command, out):
 	(_, src, ranges) = command.split()
@@ -25,9 +27,15 @@ def process(f):
 			else:
 				out.write(line)
 
+def build():
+	process('list.md.in')
+
 if len(sys.argv) == 1:
-	# TODO watch for files changes
-	pass
+	watcher = livereload.watcher.get_watcher_class()()
+	watcher.watch("*.in")
+	watcher.watch("code/*.cc")
+	watcher.start(build)
+	tornado.ioloop.IOLoop.instance().start()
 else:
 	for f in sys.argv[1:]:
 		process(f)

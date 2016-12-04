@@ -345,7 +345,7 @@ Double mistake:
 ```
 Execrise: try memory checker with this double error.
 
-### list01a: `list_node_base` with `protected` destructor
+### list01alt: `list_node_base` with `protected` destructor
 
 ```cpp
 struct list_node_base
