@@ -23,3 +23,4 @@ $CXX $CXXFLAGS list02.cc -o $OUT/list02
 $CXX $CXXFLAGS list02const.cc -o $OUT/list02const
 
 $CXX $CXXFLAGS list03.cc -o $OUT/list03
+$CXX $CXXFLAGS list03ctor.cc -o $OUT/list03ctor
