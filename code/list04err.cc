@@ -82,9 +82,6 @@ class list : private list_base
       push_back(value);
   }
 
-  //template <typename InputIterator>
-  //list(InputIterator first, InputIterator last);
-
   void swap(list& rhs)
   {
     list tmp(std::move(rhs));
@@ -134,7 +131,6 @@ class list : private list_base
   const_iterator end() const { return const_iterator(&head_); }
   const_iterator cend() { return const_iterator(&head_); }
 
-  // Effective Modern C++, Item 41.
   void push_front(T x)
   {
     list_node* n = new list_node(std::move(x));

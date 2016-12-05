@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import re
+
 GRAPH = """
 list00 -> list01 -> list02 -> list02const -> list03 -> list04 -> list04more
 
@@ -28,6 +30,9 @@ for line in GRAPH.splitlines():
 with open('build.sh', 'r+') as f:
     while True:
         line = f.readline()
+        m = re.search('-o .OUT/(.*)', line)
+        if m:
+            all_targets.discard(m.group(1))
         if 'AUTO UPDATE' in line:
             f.write('\n')
             break

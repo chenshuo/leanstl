@@ -10,7 +10,7 @@ Doubly linked list:
 ![list](list.png)
 
 list00.cc:
-@i list00.cc 7-37
+@ib list00.cc "namespace leanstl"
 
 Object sizes on 64-bit Linux.
 
@@ -56,14 +56,14 @@ T = std::vector<int>
 
 ## list01: destructor
 
-@i list01.cc 17-65
+@ib list01.cc "template <typename T>"
 
 ### Mistake: use-after-free
 
 list01err0.cc
-@i list01err0.cc 27-34
+@ib list01err0.cc "  ~list()"
 
-@i list01err0.cc 69-74
+@ib list01err0.cc "int main()"
 ```
 $ code/bin/list01err0
 front=43
@@ -97,7 +97,7 @@ $3 = {
 Some clever person finds a way to avoid coredump, by deleting from tail to head.
 
 list01err0hack.cc
-@i list01err0hack.cc 27-34
+@ib list01err0hack.cc "  ~list()"
 
 Valgrind
 ```
@@ -142,7 +142,7 @@ SUMMARY: AddressSanitizer: heap-use-after-free code/list01err0.cc:30 leanstl::li
 ### Mistake: delete pointer of `list_node_base*`
 
 list01err1.cc
-@i list01err1.cc 27-36
+@ib list01err1.cc "  ~list()"
 
 TODO: quote standard on this undefined behavior.
 
@@ -206,6 +206,39 @@ int main()
 
 ## list02: iterator
 
+list02.cc:
+@i list02.cc 17-20,40-58,84-84
+
 ### list02const: `const_iterator`
 
+list02const.cc:
+@ib list02const.cc "  class const_iterator"
+
+CRTP ?
+
 ## list03: copy control
+list03.cc:
+
+@i list03.cc 18-26,37-55,98-111,117-159
+
+### Mistake
+
+@ib list03err.cc "  list(const list& rhs)"
+
+Composition vs. inheriance
+
+@ib list04.cc "class list_base"
+@i list04.cc 45-50,61-69
+
+## list04: more constructors
+
+@i list04.cc 72-83
+@ib list04.cc "  struct list_node"
+
+### Mistake
+
+@ib list04err.cc "  struct list_node"
+
+### InputIterator vs. Integer
+
+@i list04more.cc 72-84,188-200

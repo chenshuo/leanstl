@@ -57,7 +57,6 @@ class list
   iterator begin() { return iterator(head_.next); }
   iterator end() { return iterator(&head_); }
 
-  // Effective Modern C++, Item 41.
   void push_front(T x)
   {
     list_node* n = new list_node(std::move(x));

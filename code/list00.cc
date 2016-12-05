@@ -23,13 +23,12 @@ class list
     head_.prev = &head_;
   }
 
-  // FIXME: change to private
+ private:
   struct list_node : list_node_base
   {
     T value_;
   };
 
- private:
   list_node_base head_;
   size_t size_ = 0;
 };

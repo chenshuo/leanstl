@@ -8,14 +8,14 @@ OUT=bin
 
 mkdir -p $OUT
 
-$CXX $CXXFLAGS list00.cc -m32 -o $OUT/list00m32
+$CXX $CXXFLAGS -fno-access-control list00.cc -o $OUT/list00
+$CXX $CXXFLAGS -fno-access-control list00.cc -m32 -o $OUT/list00m32
 $CXX $CXXFLAGS -fsanitize=address list01err0.cc -o $OUT/list01err0asan
 # clang++ $CXXFLAGS -fsanitize=memory list03err.cc -o $OUT/list03errmsan
 # clang++ $CXXFLAGS -fsanitize=memory list04err.cc -o $OUT/list04errmsan
 
 ##### AUTO UPDATE
 
-$CXX $CXXFLAGS list00.cc -o $OUT/list00
 $CXX $CXXFLAGS list01.cc -o $OUT/list01
 $CXX $CXXFLAGS list01alt.cc -o $OUT/list01alt
 $CXX $CXXFLAGS list01err0.cc -o $OUT/list01err0

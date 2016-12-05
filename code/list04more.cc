@@ -58,14 +58,7 @@ class list : private list_base
     }
   }
 
-  list(const list& rhs)
-  {
-    for (const T& x: rhs)
-    {
-      push_back(x);
-    }
-  }
-
+  list(const list& rhs) : list(rhs.begin(), rhs.end()) {}
   list(list&& rhs) { take_over(rhs); }
   list& operator=(list rhs) { swap(rhs); return *this; }
 
@@ -87,14 +80,7 @@ class list : private list_base
     initialize(first, last, typename std::is_integral<InputIterator>::type());
   }
 
-  list(std::initializer_list<T> l)
-  {
-    // FIXME: move ?
-    for (const T& x: l)
-    {
-      push_back(x);
-    }
-  }
+  list(std::initializer_list<T> il) : list(il.begin(), il.end()) {}
 
   void swap(list& rhs)
   {
@@ -145,7 +131,6 @@ class list : private list_base
   const_iterator end() const { return const_iterator(&head_); }
   const_iterator cend() { return const_iterator(&head_); }
 
-  // Effective Modern C++, Item 41.
   void push_front(T x)
   {
     list_node* n = new list_node(std::move(x));
@@ -213,7 +198,6 @@ class list : private list_base
     for (size_t i = 0; i < n; ++i)
       push_back(value);
   }
-
 };
 
 }  // namespace leanstl

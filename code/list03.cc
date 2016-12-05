@@ -43,6 +43,7 @@ class list
   }
 
   list(list&& rhs) : list() { take_over(rhs); }
+  // Effective Modern C++, Item 41.
   list& operator=(list rhs) { swap(rhs); return *this; }
 
   void swap(list& rhs)
@@ -94,7 +95,6 @@ class list
   const_iterator end() const { return const_iterator(&head_); }
   const_iterator cend() { return const_iterator(&head_); }
 
-  // Effective Modern C++, Item 41.
   void push_front(T x)
   {
     list_node* n = new list_node(std::move(x));
