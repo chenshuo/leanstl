@@ -43,6 +43,7 @@ class list
   }
 
   list(list&& rhs) : list() { take_over(rhs); }
+  // Effective Modern C++, Item 41.
   list& operator=(list rhs) { swap(rhs); return *this; }
 
   void swap(list& rhs)

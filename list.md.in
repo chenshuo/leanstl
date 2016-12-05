@@ -225,6 +225,8 @@ list03.cc:
 
 @ib list03err.cc "  list(const list& rhs)"
 
+TODO: memory sanitizer and Valgrind
+
 Composition vs. inheriance
 
 @ib list04.cc "class list_base"
@@ -239,6 +241,10 @@ Composition vs. inheriance
 
 @ib list04err.cc "  struct list_node"
 
+TODO: Valgrind
+
+But memory sanitizer doesn't catch this.
+
 ### InputIterator vs. Integer
 
-@i list04more.cc 78-85,189-201
+@i list04more.cc 61-61,77-85,189-201

@@ -196,7 +196,7 @@ class list : private list_base
   template <typename Integer>
   void initialize(Integer n, Integer value, std::true_type)
   {
-    for (size_t i = 0; i < n; ++i)
+    for (Integer i = 0; i < n; ++i)
       push_back(value);
   }
 };

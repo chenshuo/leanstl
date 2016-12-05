@@ -9,11 +9,3 @@
    {
      for (const T& x: rhs)
      {
-@@ -43,7 +43,6 @@
-   }
- 
-   list(list&& rhs) : list() { take_over(rhs); }
--  // Effective Modern C++, Item 41.
-   list& operator=(list rhs) { swap(rhs); return *this; }
- 
-   void swap(list& rhs)

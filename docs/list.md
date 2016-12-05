@@ -511,6 +511,8 @@ class list
   }
 ```
 
+TODO: memory sanitizer and Valgrind
+
 Composition vs. inheriance
 
 ```cpp
@@ -597,9 +599,15 @@ class list : private list_base
   };
 ```
 
+TODO: Valgrind
+
+But memory sanitizer doesn't catch this.
+
 ### InputIterator vs. Integer
 
 ```cpp
+  list(const list& rhs) : list(rhs.begin(), rhs.end()) {}
+
   template <typename InputIterator>
   list(InputIterator first, InputIterator last)
   {
@@ -618,7 +626,7 @@ class list : private list_base
   template <typename Integer>
   void initialize(Integer n, Integer value, std::true_type)
   {
-    for (size_t i = 0; i < n; ++i)
+    for (Integer i = 0; i < n; ++i)
       push_back(value);
   }
 ```
