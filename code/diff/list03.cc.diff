@@ -18,7 +18,7 @@
    }
  
    ~list()
-@@ -34,8 +34,23 @@
+@@ -34,8 +34,24 @@
      }
    }
  
@@ -33,6 +33,7 @@
 +  }
 +
 +  list(list&& rhs) : list() { take_over(rhs); }
++  // Effective Modern C++, Item 41.
 +  list& operator=(list rhs) { swap(rhs); return *this; }
 +
 +  void swap(list& rhs)
@@ -44,7 +45,7 @@
  
    class iterator
    {
-@@ -83,10 +98,14 @@
+@@ -82,10 +98,14 @@
    void push_front(T x)
    {
      list_node* n = new list_node(std::move(x));
@@ -63,7 +64,7 @@
      size_++;
    }
  
-@@ -99,9 +118,42 @@
+@@ -98,9 +118,42 @@
    struct list_node : list_node_base
    {
      T value_;
@@ -106,7 +107,7 @@
    list_node_base head_;
    size_t size_ = 0;
  };
-@@ -118,14 +170,16 @@
+@@ -117,14 +170,16 @@
    leanstl::list<int> li;
    li.push_front(43);
    li.push_front(82);

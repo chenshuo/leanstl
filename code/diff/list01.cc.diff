@@ -8,11 +8,10 @@
  
  namespace leanstl
  {
-@@ -23,13 +24,42 @@
+@@ -23,10 +24,40 @@
      head_.prev = &head_;
    }
  
--  // FIXME: change to private
 +  ~list()
 +  {
 +    for (list_node_base* n = head_.next; n != &head_;)
@@ -26,7 +25,7 @@
 +  list(const list& rhs) = delete;
 +  void operator=(const list& rhs) = delete;
 +
-+  // Effective Modern C++, Item 41.
++  // Tentative, so that we can test non-empty lists
 +  void push_front(T x)
 +  {
 +    list_node* n = new list_node(std::move(x));
@@ -42,18 +41,15 @@
 +    return static_cast<list_node*>(head_.next)->value_;
 +  }
 +
-+ private:
+  private:
    struct list_node : list_node_base
    {
      T value_;
 +    list_node(T&& x) : value_(std::move(x)) {}
    };
  
-- private:
    list_node_base head_;
-   size_t size_ = 0;
- };
-@@ -38,27 +68,22 @@
+@@ -37,27 +68,22 @@
  
  ///////////////////////////////////////  main()  ////////////////////////////
  

@@ -53,11 +53,12 @@
    {
      for (const T& x: rhs)
      {
-@@ -42,9 +66,25 @@
+@@ -42,10 +66,22 @@
      }
    }
  
 -  list(list&& rhs) : list() { take_over(rhs); }
+-  // Effective Modern C++, Item 41.
 +  list(list&& rhs) { take_over(rhs); }
    list& operator=(list rhs) { swap(rhs); return *this; }
  
@@ -74,13 +75,10 @@
 +      push_back(value);
 +  }
 +
-+  //template <typename InputIterator>
-+  //list(InputIterator first, InputIterator last);
-+
    void swap(list& rhs)
    {
      list tmp(std::move(rhs));
-@@ -118,6 +158,7 @@
+@@ -118,6 +154,7 @@
    struct list_node : list_node_base
    {
      T value_;
@@ -88,7 +86,7 @@
      list_node(const T& x) : value_(x) {}
      list_node(T&& x) : value_(std::move(x)) {}
    };
-@@ -130,12 +171,6 @@
+@@ -130,12 +167,6 @@
      pos->prev = n;
    }
  
@@ -101,7 +99,7 @@
    void take_over(list& rhs)
    {
      assert(size_ == 0);
-@@ -153,9 +188,6 @@
+@@ -153,9 +184,6 @@
        rhs.size_ = 0;
      }
    }
@@ -111,7 +109,7 @@
  };
  
  }  // namespace leanstl
-@@ -167,7 +199,7 @@
+@@ -167,7 +195,7 @@
  
  int main()
  {
@@ -120,7 +118,7 @@
    li.push_front(43);
    li.push_front(82);
    li.push_back(19);
-@@ -184,7 +216,7 @@
+@@ -184,7 +212,7 @@
    ls.push_front("hello");
    printf("front=%s\n", ls.front().c_str());
  

@@ -1,6 +1,6 @@
 --- list04.cc
 +++ list04err.cc
-@@ -158,7 +158,7 @@
+@@ -154,7 +154,7 @@
    struct list_node : list_node_base
    {
      T value_;

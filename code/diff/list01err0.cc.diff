@@ -18,7 +18,7 @@
    list(const list& rhs) = delete;
    void operator=(const list& rhs) = delete;
  
--  // Effective Modern C++, Item 41.
+-  // Tentative, so that we can test non-empty lists
    void push_front(T x)
    {
      list_node* n = new list_node(std::move(x));

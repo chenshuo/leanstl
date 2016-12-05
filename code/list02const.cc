@@ -79,7 +79,6 @@ class list
   const_iterator end() const { return const_iterator(&head_); }
   const_iterator cend() { return const_iterator(&head_); }
 
-  // Effective Modern C++, Item 41.
   void push_front(T x)
   {
     list_node* n = new list_node(std::move(x));

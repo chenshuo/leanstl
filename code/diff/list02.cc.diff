@@ -1,9 +1,10 @@
 --- list01.cc
 +++ list02.cc
-@@ -37,6 +37,26 @@
+@@ -37,7 +37,26 @@
    list(const list& rhs) = delete;
    void operator=(const list& rhs) = delete;
  
+-  // Tentative, so that we can test non-empty lists
 +  class iterator
 +  {
 +   public:
@@ -24,10 +25,10 @@
 +  iterator begin() { return iterator(head_.next); }
 +  iterator end() { return iterator(&head_); }
 +
-   // Effective Modern C++, Item 41.
    void push_front(T x)
    {
-@@ -75,9 +95,10 @@
+     list_node* n = new list_node(std::move(x));
+@@ -75,9 +94,10 @@
  {
    leanstl::list<int> li;
    li.push_front(43);

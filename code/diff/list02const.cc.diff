@@ -29,9 +29,9 @@
 +  const_iterator end() const { return const_iterator(&head_); }
 +  const_iterator cend() { return const_iterator(&head_); }
  
-   // Effective Modern C++, Item 41.
    void push_front(T x)
-@@ -100,6 +122,10 @@
+   {
+@@ -99,6 +121,10 @@
    for (auto x : li)
      printf("%d\n", x);
  

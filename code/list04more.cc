@@ -71,7 +71,8 @@ class list : private list_base
 
   list(size_t n, const T& value)
   {
-    initialize(n, value, std::true_type());
+    for (size_t i = 0; i < n; ++i)
+      push_back(value);
   }
 
   template <typename InputIterator>

@@ -600,11 +600,6 @@ class list : private list_base
 ### InputIterator vs. Integer
 
 ```cpp
-  list(size_t n, const T& value)
-  {
-    initialize(n, value, std::true_type());
-  }
-
   template <typename InputIterator>
   list(InputIterator first, InputIterator last)
   {
