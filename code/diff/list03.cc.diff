@@ -1,6 +1,24 @@
 --- list02const.cc	2016-12-04 18:51:59.504655976 -0800
-+++ list03.cc	2016-12-04 19:32:39.901444134 -0800
-@@ -34,8 +34,24 @@
++++ list03.cc	2016-12-04 22:02:51.126096555 -0800
+@@ -2,6 +2,7 @@
+ 
+ ///////////////////////////////////////  list.h  ////////////////////////////
+ 
++#include <assert.h>  // for size_t
+ #include <stddef.h>  // for size_t
+ #include <utility>   // for std::move
+ 
+@@ -20,8 +21,7 @@
+  public:
+   list()
+   {
+-    head_.next = &head_;
+-    head_.prev = &head_;
++    init_head();
+   }
+ 
+   ~list()
+@@ -34,8 +34,23 @@
      }
    }
  
@@ -14,20 +32,19 @@
 +    }
 +  }
 +
-+  list(list&& rhs) : list() { swap(rhs); }
++  list(list&& rhs) : list() { take_over(rhs); }
 +  list& operator=(list rhs) { swap(rhs); return *this; }
 +
 +  void swap(list& rhs)
 +  {
-+    // FIXME:
-+    // std::swap(head_.next, rhs.head_.next);
-+    // std::swap(head_.prev, rhs.head_.prev);
-+    // std::swap(size_, rhs.size_);
++    list tmp(std::move(rhs));
++    rhs.take_over(*this);
++    take_over(tmp);
 +  }
  
    class iterator
    {
-@@ -83,10 +99,14 @@
+@@ -83,10 +98,14 @@
    void push_front(T x)
    {
      list_node* n = new list_node(std::move(x));
@@ -46,7 +63,7 @@
      size_++;
    }
  
-@@ -99,9 +119,18 @@
+@@ -99,9 +118,42 @@
    struct list_node : list_node_base
    {
      T value_;
@@ -62,10 +79,34 @@
 +    pos->prev = n;
 +  }
 +
++  void init_head()
++  {
++    head_.next = &head_;
++    head_.prev = &head_;
++  }
++
++  void take_over(list& rhs)
++  {
++    assert(size_ == 0);
++    assert(head_.next == &head_);
++    assert(head_.prev == &head_);
++
++    if (rhs.size_ > 0)
++    {
++      head_.next = rhs.head_.next;
++      head_.prev = rhs.head_.prev;
++      head_.next->prev = &head_;
++      head_.prev->next = &head_;
++      rhs.init_head();
++      size_ = rhs.size_;
++      rhs.size_ = 0;
++    }
++  }
++
    list_node_base head_;
    size_t size_ = 0;
  };
-@@ -118,14 +147,14 @@
+@@ -118,14 +170,16 @@
    leanstl::list<int> li;
    li.push_front(43);
    li.push_front(82);
@@ -80,6 +121,8 @@
      printf("%d\n", x);
  
 +  leanstl::list<int> lim(std::move(li));
++
++  lic = lim;
 +
    leanstl::list<std::string> ls;
    ls.push_front("hello");

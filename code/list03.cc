@@ -2,6 +2,7 @@
 
 ///////////////////////////////////////  list.h  ////////////////////////////
 
+#include <assert.h>  // for size_t
 #include <stddef.h>  // for size_t
 #include <utility>   // for std::move
 
@@ -20,8 +21,7 @@ class list
  public:
   list()
   {
-    head_.next = &head_;
-    head_.prev = &head_;
+    init_head();
   }
 
   ~list()
@@ -42,15 +42,14 @@ class list
     }
   }
 
-  list(list&& rhs) : list() { swap(rhs); }
+  list(list&& rhs) : list() { take_over(rhs); }
   list& operator=(list rhs) { swap(rhs); return *this; }
 
   void swap(list& rhs)
   {
-    // FIXME:
-    // std::swap(head_.next, rhs.head_.next);
-    // std::swap(head_.prev, rhs.head_.prev);
-    // std::swap(size_, rhs.size_);
+    list tmp(std::move(rhs));
+    rhs.take_over(*this);
+    take_over(tmp);
   }
 
   class iterator
@@ -131,6 +130,30 @@ class list
     pos->prev = n;
   }
 
+  void init_head()
+  {
+    head_.next = &head_;
+    head_.prev = &head_;
+  }
+
+  void take_over(list& rhs)
+  {
+    assert(size_ == 0);
+    assert(head_.next == &head_);
+    assert(head_.prev == &head_);
+
+    if (rhs.size_ > 0)
+    {
+      head_.next = rhs.head_.next;
+      head_.prev = rhs.head_.prev;
+      head_.next->prev = &head_;
+      head_.prev->next = &head_;
+      rhs.init_head();
+      size_ = rhs.size_;
+      rhs.size_ = 0;
+    }
+  }
+
   list_node_base head_;
   size_t size_ = 0;
 };
@@ -154,6 +177,8 @@ int main()
     printf("%d\n", x);
 
   leanstl::list<int> lim(std::move(li));
+
+  lic = lim;
 
   leanstl::list<std::string> ls;
   ls.push_front("hello");
