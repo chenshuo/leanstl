@@ -194,7 +194,7 @@ $3 = {
 
 Some clever person finds a way to avoid coredump, by deleting from tail to head.
 
-list01err0a.cc
+list01err0hack.cc
 ```cpp
   ~list()
   {
