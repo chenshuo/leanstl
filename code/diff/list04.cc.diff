@@ -1,0 +1,131 @@
+--- list03.cc
++++ list04.cc
+@@ -15,15 +15,39 @@
+   list_node_base* prev;
+ };
+ 
+-template <typename T>
+-class list
++class list_base
+ {
+- public:
+-  list()
++ protected:
++  list_base()
+   {
+     init_head();
+   }
+ 
++  ~list_base()
++  {
++    if (size_ == 0)
++    {
++      assert(head_.next == &head_);
++      assert(head_.prev == &head_);
++    }
++  }
++
++  void init_head()
++  {
++    head_.next = &head_;
++    head_.prev = &head_;
++  }
++
++  list_node_base head_;
++  size_t size_ = 0;
++};
++
++template <typename T>
++class list : private list_base
++{
++ public:
++  list() {}
++
+   ~list()
+   {
+     for (list_node_base* n = head_.next; n != &head_;)
+@@ -34,7 +58,7 @@
+     }
+   }
+ 
+-  list(const list& rhs) : list()
++  list(const list& rhs)
+   {
+     for (const T& x: rhs)
+     {
+@@ -42,9 +66,25 @@
+     }
+   }
+ 
+-  list(list&& rhs) : list() { take_over(rhs); }
++  list(list&& rhs) { take_over(rhs); }
+   list& operator=(list rhs) { swap(rhs); return *this; }
+ 
++  explicit list(size_t n)
++  {
++    for (size_t i = 0; i < n; ++i)
++      insert_node(&head_, new list_node);
++    size_ = n;
++  }
++
++  list(size_t n, const T& value)
++  {
++    for (size_t i = 0; i < n; ++i)
++      push_back(value);
++  }
++
++  //template <typename InputIterator>
++  //list(InputIterator first, InputIterator last);
++
+   void swap(list& rhs)
+   {
+     list tmp(std::move(rhs));
+@@ -118,6 +158,7 @@
+   struct list_node : list_node_base
+   {
+     T value_;
++    list_node() : value_() {}
+     list_node(const T& x) : value_(x) {}
+     list_node(T&& x) : value_(std::move(x)) {}
+   };
+@@ -130,12 +171,6 @@
+     pos->prev = n;
+   }
+ 
+-  void init_head()
+-  {
+-    head_.next = &head_;
+-    head_.prev = &head_;
+-  }
+-
+   void take_over(list& rhs)
+   {
+     assert(size_ == 0);
+@@ -153,9 +188,6 @@
+       rhs.size_ = 0;
+     }
+   }
+-
+-  list_node_base head_;
+-  size_t size_ = 0;
+ };
+ 
+ }  // namespace leanstl
+@@ -167,7 +199,7 @@
+ 
+ int main()
+ {
+-  leanstl::list<int> li;
++  leanstl::list<int> li(3);
+   li.push_front(43);
+   li.push_front(82);
+   li.push_back(19);
+@@ -184,7 +216,7 @@
+   ls.push_front("hello");
+   printf("front=%s\n", ls.front().c_str());
+ 
+-  leanstl::list<std::unique_ptr<double>> lu;
++  leanstl::list<std::unique_ptr<double>> lu(5);
+   lu.push_front(std::unique_ptr<double>(new double(5.0)));  // make_unique in C++14
+   printf("front=%f\n", *lu.front());
+ }

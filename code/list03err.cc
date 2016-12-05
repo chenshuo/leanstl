@@ -34,7 +34,7 @@ class list
     }
   }
 
-  list(const list& rhs) : list()
+  list(const list& rhs)  // WRONG: head_ is uninitialized
   {
     for (const T& x: rhs)
     {

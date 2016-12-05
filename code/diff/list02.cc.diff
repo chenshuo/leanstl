@@ -1,5 +1,5 @@
---- list01.cc	2016-12-03 15:57:44.199779537 -0800
-+++ list02.cc	2016-12-04 18:51:20.696476276 -0800
+--- list01.cc
++++ list02.cc
 @@ -37,6 +37,26 @@
    list(const list& rhs) = delete;
    void operator=(const list& rhs) = delete;

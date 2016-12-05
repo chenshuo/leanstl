@@ -1,0 +1,82 @@
+--- list04.cc
++++ list04more.cc
+@@ -4,7 +4,7 @@
+ 
+ #include <assert.h>  // for size_t
+ #include <stddef.h>  // for size_t
+-#include <utility>   // for std::move
++#include <utility>   // for std::move and initializer_list
+ 
+ namespace leanstl
+ {
+@@ -78,12 +78,23 @@
+ 
+   list(size_t n, const T& value)
+   {
+-    for (size_t i = 0; i < n; ++i)
+-      push_back(value);
++    initialize(n, value, std::true_type());
+   }
+ 
+-  //template <typename InputIterator>
+-  //list(InputIterator first, InputIterator last);
++  template <typename InputIterator>
++  list(InputIterator first, InputIterator last)
++  {
++    initialize(first, last, typename std::is_integral<InputIterator>::type());
++  }
++
++  list(std::initializer_list<T> l)
++  {
++    // FIXME: move ?
++    for (const T& x: l)
++    {
++      push_back(x);
++    }
++  }
+ 
+   void swap(list& rhs)
+   {
+@@ -188,6 +199,21 @@
+       rhs.size_ = 0;
+     }
+   }
++
++  template <typename InputIterator>
++  void initialize(InputIterator first, InputIterator last, std::false_type)
++  {
++    for (; first != last; ++first)
++      push_back(*first);
++  }
++
++  template <typename Integer>
++  void initialize(Integer n, Integer value, std::true_type)
++  {
++    for (size_t i = 0; i < n; ++i)
++      push_back(value);
++  }
++
+ };
+ 
+ }  // namespace leanstl
+@@ -199,7 +225,7 @@
+ 
+ int main()
+ {
+-  leanstl::list<int> li(3);
++  leanstl::list<int> li(3, 8);
+   li.push_front(43);
+   li.push_front(82);
+   li.push_back(19);
+@@ -212,6 +238,11 @@
+ 
+   lic = lim;
+ 
++  int arr[3] = { 1, 2, 3};
++  leanstl::list<int> lia(arr, arr+3);
++  for (auto x : lia)
++    printf("%d\n", x);
++
+   leanstl::list<std::string> ls;
+   ls.push_front("hello");
+   printf("front=%s\n", ls.front().c_str());
