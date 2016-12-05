@@ -54,8 +54,30 @@ class list
     list_node_base* node_;
   };
 
+  class const_iterator
+  {
+   public:
+    const_iterator(const list_node_base* n = nullptr) : node_(n) {}
+    const T& operator*() { return *operator->(); }
+    const T* operator->() { return &static_cast<const list_node*>(node_)->value_; }
+    const_iterator& operator++() { node_ = node_->next; return *this; }
+    const_iterator operator++(int) { const_iterator old = *this; operator++(); return old; }
+    const_iterator& operator--() { node_ = node_->prev; return *this; }
+    const_iterator operator--(int) { const_iterator old = *this; operator--(); return old; }
+    bool operator==(const_iterator rhs) const { return node_ == rhs.node_; }
+    bool operator!=(const_iterator rhs) const { return node_ != rhs.node_; }
+
+   private:
+    const list_node_base* node_;
+  };
+  // TODO: test operator==()
+
   iterator begin() { return iterator(head_.next); }
+  const_iterator begin() const { return const_iterator(head_.next); }
+  const_iterator cbegin() const { return const_iterator(head_.next); }
   iterator end() { return iterator(&head_); }
+  const_iterator end() const { return const_iterator(&head_); }
+  const_iterator cend() { return const_iterator(&head_); }
 
   // Effective Modern C++, Item 41.
   void push_front(T x)
@@ -98,6 +120,10 @@ int main()
   li.push_front(82);
 
   for (auto x : li)
+    printf("%d\n", x);
+
+  const leanstl::list<int>& lic(li);
+  for (auto x : lic)
     printf("%d\n", x);
 
   leanstl::list<std::string> ls;

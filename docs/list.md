@@ -2,49 +2,12 @@
 
 ![](list-tut.png)
 
-## Data Structure
-
-struct `list_node_base` and `list_node<T>`
-
-```cpp
-struct list_node_base
-{
-  list_node_base* next;
-  list_node_base* prev;
-};
-
-template <typename T>
-struct list_node : list_node_base
-{
-  T value_;
-};
-```
-
-class template `list<T>`
-
-```cpp
-template <typename T>
-class list
-{
- public:
-  list()
-  {
-    head_.next = &head_;
-    head_.prev = &head_;
-  }
-
- private:
-  list_node_base head_;
-  size_t size_ = 0;
-};
-```
+## list00: data structure
 
 ![node](listnode.png)
 
 Doubly linked list:
 ![list](list.png)
-
-## list00: object sizes
 
 list00.cc:
 ```cpp
@@ -123,15 +86,7 @@ T = std::vector<int>
      sizeof list_node: 20
 ```
 
-### list00a: `typedef`s
-
-TODO
-
-### list00b: accessors
-
-TODO
-
-## list01: `push_front`
+## list01: destructor
 
 ```cpp
 template <typename T>
@@ -400,8 +355,8 @@ int main()
 }
 ```
 
-### More tests on T
+## list02: iterator
 
-## list02: copy control
+### list02const: `const_iterator`
 
-## list03: iterator
+## list03: copy control

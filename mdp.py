@@ -3,7 +3,7 @@
 # Preprocess markdown
 
 import re, sys
-import livereload
+import pyinotify, livereload
 import tornado.ioloop
 
 def include(command, out):
