@@ -1,0 +1,42 @@
+--- list01.cc	2016-12-03 15:57:44.199779537 -0800
++++ list02.cc	2016-12-04 18:51:20.696476276 -0800
+@@ -37,6 +37,26 @@
+   list(const list& rhs) = delete;
+   void operator=(const list& rhs) = delete;
+ 
++  class iterator
++  {
++   public:
++    iterator(list_node_base* n = nullptr) : node_(n) {}
++    T& operator*() { return *operator->(); }
++    T* operator->() { return &static_cast<list_node*>(node_)->value_; }
++    iterator& operator++() { node_ = node_->next; return *this; }
++    iterator operator++(int) { iterator old = *this; operator++(); return old; }
++    iterator& operator--() { node_ = node_->prev; return *this; }
++    iterator operator--(int) { iterator old = *this; operator--(); return old; }
++    bool operator==(iterator rhs) const { return node_ == rhs.node_; }
++    bool operator!=(iterator rhs) const { return node_ != rhs.node_; }
++
++   private:
++    list_node_base* node_;
++  };
++
++  iterator begin() { return iterator(head_.next); }
++  iterator end() { return iterator(&head_); }
++
+   // Effective Modern C++, Item 41.
+   void push_front(T x)
+   {
+@@ -75,9 +95,10 @@
+ {
+   leanstl::list<int> li;
+   li.push_front(43);
+-  printf("front=%d\n", li.front());
+   li.push_front(82);
+-  printf("front=%d\n", li.front());
++
++  for (auto x : li)
++    printf("%d\n", x);
+ 
+   leanstl::list<std::string> ls;
+   ls.push_front("hello");

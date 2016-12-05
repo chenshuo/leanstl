@@ -1,0 +1,13 @@
+--- list01err0.cc	2016-12-01 07:19:44.396657431 -0800
++++ list01err0hack.cc	2016-12-01 07:19:44.396657431 -0800
+@@ -26,8 +26,8 @@
+ 
+   ~list()
+   {
+-    // WRONG: use-after-free
+-    for (list_node_base* n = head_.next; n != &head_; n = n->next)
++    // STILL WRONG: use-after-free
++    for (list_node_base* n = head_.prev; n != &head_; n = n->prev)
+     {
+       delete static_cast<list_node*>(n);
+     }

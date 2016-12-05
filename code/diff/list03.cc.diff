@@ -1,0 +1,86 @@
+--- list02const.cc	2016-12-04 18:51:59.504655976 -0800
++++ list03.cc	2016-12-04 19:32:39.901444134 -0800
+@@ -34,8 +34,24 @@
+     }
+   }
+ 
+-  list(const list& rhs) = delete;
+-  void operator=(const list& rhs) = delete;
++  list(const list& rhs) : list()
++  {
++    for (const T& x: rhs)
++    {
++      push_back(x);
++    }
++  }
++
++  list(list&& rhs) : list() { swap(rhs); }
++  list& operator=(list rhs) { swap(rhs); return *this; }
++
++  void swap(list& rhs)
++  {
++    // FIXME:
++    // std::swap(head_.next, rhs.head_.next);
++    // std::swap(head_.prev, rhs.head_.prev);
++    // std::swap(size_, rhs.size_);
++  }
+ 
+   class iterator
+   {
+@@ -83,10 +99,14 @@
+   void push_front(T x)
+   {
+     list_node* n = new list_node(std::move(x));
+-    n->next = head_.next;
+-    n->next->prev = n;
+-    head_.next = n;
+-    n->prev = &head_;
++    insert_node(head_.next, n);
++    size_++;
++  }
++
++  void push_back(const T& x)
++  {
++    list_node* n = new list_node(x);
++    insert_node(&head_, n);
+     size_++;
+   }
+ 
+@@ -99,9 +119,18 @@
+   struct list_node : list_node_base
+   {
+     T value_;
++    list_node(const T& x) : value_(x) {}
+     list_node(T&& x) : value_(std::move(x)) {}
+   };
+ 
++  void insert_node(list_node_base* pos, list_node* n)
++  {
++    n->next = pos;
++    n->prev = pos->prev;
++    pos->prev->next = n;
++    pos->prev = n;
++  }
++
+   list_node_base head_;
+   size_t size_ = 0;
+ };
+@@ -118,14 +147,14 @@
+   leanstl::list<int> li;
+   li.push_front(43);
+   li.push_front(82);
++  li.push_back(19);
+ 
+-  for (auto x : li)
+-    printf("%d\n", x);
+-
+-  const leanstl::list<int>& lic(li);
++  leanstl::list<int> lic(li);
+   for (auto x : lic)
+     printf("%d\n", x);
+ 
++  leanstl::list<int> lim(std::move(li));
++
+   leanstl::list<std::string> ls;
+   ls.push_front("hello");
+   printf("front=%s\n", ls.front().c_str());

@@ -1,0 +1,97 @@
+--- list00.cc	2016-12-01 07:19:36.272262758 -0800
++++ list01.cc	2016-12-03 15:57:44.199779537 -0800
+@@ -3,6 +3,7 @@
+ ///////////////////////////////////////  list.h  ////////////////////////////
+ 
+ #include <stddef.h>  // for size_t
++#include <utility>   // for std::move
+ 
+ namespace leanstl
+ {
+@@ -23,13 +24,42 @@
+     head_.prev = &head_;
+   }
+ 
+-  // FIXME: change to private
++  ~list()
++  {
++    for (list_node_base* n = head_.next; n != &head_;)
++    {
++      list_node* tod = static_cast<list_node*>(n);
++      n = n->next;
++      delete tod;
++    }
++  }
++
++  list(const list& rhs) = delete;
++  void operator=(const list& rhs) = delete;
++
++  // Effective Modern C++, Item 41.
++  void push_front(T x)
++  {
++    list_node* n = new list_node(std::move(x));
++    n->next = head_.next;
++    n->next->prev = n;
++    head_.next = n;
++    n->prev = &head_;
++    size_++;
++  }
++
++  T& front()
++  {
++    return static_cast<list_node*>(head_.next)->value_;
++  }
++
++ private:
+   struct list_node : list_node_base
+   {
+     T value_;
++    list_node(T&& x) : value_(std::move(x)) {}
+   };
+ 
+- private:
+   list_node_base head_;
+   size_t size_ = 0;
+ };
+@@ -38,27 +68,22 @@
+ 
+ ///////////////////////////////////////  main()  ////////////////////////////
+ 
++#include <memory>
+ #include <string>
+-#include <vector>
+-
+-template <typename T>
+-void print_size(const char* name)
+-{
+-  typedef leanstl::list<T> L;
+-  printf("\n");
+-  printf("T = %s\n", name);
+-  printf("     sizeof T:         %2zd\n", sizeof(T));
+-  printf("     sizeof list_node: %2zd\n", sizeof(typename L::list_node));
+-}
+ 
+ int main()
+ {
+-  printf("sizeof void*:          %2zd\n", sizeof(void*));
+-  printf("sizeof size_t:         %2zd\n", sizeof(size_t));
+-  printf("sizeof list_node_base: %2zd\n", sizeof(leanstl::list_node_base));
+-  printf("sizeof list:           %2zd\n", sizeof(leanstl::list<double>));
+-#define PRINT_SIZE(X) print_size<X>(#X)
+-  PRINT_SIZE(int);
+-  PRINT_SIZE(std::string);
+-  PRINT_SIZE(std::vector<int>);
++  leanstl::list<int> li;
++  li.push_front(43);
++  printf("front=%d\n", li.front());
++  li.push_front(82);
++  printf("front=%d\n", li.front());
++
++  leanstl::list<std::string> ls;
++  ls.push_front("hello");
++  printf("front=%s\n", ls.front().c_str());
++
++  leanstl::list<std::unique_ptr<double>> lu;
++  lu.push_front(std::unique_ptr<double>(new double(5.0)));  // make_unique in C++14
++  printf("front=%f\n", *lu.front());
+ }

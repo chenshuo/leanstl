@@ -34,7 +34,7 @@ class list
     }
   }
 
-  list(const list& rhs)
+  list(const list& rhs) : list()
   {
     for (const T& x: rhs)
     {
@@ -42,14 +42,15 @@ class list
     }
   }
 
-  list(list&& rhs) { swap(rhs); }
+  list(list&& rhs) : list() { swap(rhs); }
   list& operator=(list rhs) { swap(rhs); return *this; }
 
   void swap(list& rhs)
   {
-    std::swap(head_.next, rhs.head_.next);
-    std::swap(head_.prev, rhs.head_.prev);
-    std::swap(size_, rhs.size_);
+    // FIXME:
+    // std::swap(head_.next, rhs.head_.next);
+    // std::swap(head_.prev, rhs.head_.prev);
+    // std::swap(size_, rhs.size_);
   }
 
   class iterator
@@ -69,17 +70,43 @@ class list
     list_node_base* node_;
   };
 
+  class const_iterator
+  {
+   public:
+    const_iterator(const list_node_base* n = nullptr) : node_(n) {}
+    const T& operator*() { return *operator->(); }
+    const T* operator->() { return &static_cast<const list_node*>(node_)->value_; }
+    const_iterator& operator++() { node_ = node_->next; return *this; }
+    const_iterator operator++(int) { const_iterator old = *this; operator++(); return old; }
+    const_iterator& operator--() { node_ = node_->prev; return *this; }
+    const_iterator operator--(int) { const_iterator old = *this; operator--(); return old; }
+    bool operator==(const_iterator rhs) const { return node_ == rhs.node_; }
+    bool operator!=(const_iterator rhs) const { return node_ != rhs.node_; }
+
+   private:
+    const list_node_base* node_;
+  };
+  // TODO: test operator==()
+
   iterator begin() { return iterator(head_.next); }
+  const_iterator begin() const { return const_iterator(head_.next); }
+  const_iterator cbegin() const { return const_iterator(head_.next); }
   iterator end() { return iterator(&head_); }
+  const_iterator end() const { return const_iterator(&head_); }
+  const_iterator cend() { return const_iterator(&head_); }
 
   // Effective Modern C++, Item 41.
   void push_front(T x)
   {
     list_node* n = new list_node(std::move(x));
-    n->next = head_.next;
-    n->next->prev = n;
-    head_.next = n;
-    n->prev = &head_;
+    insert_node(head_.next, n);
+    size_++;
+  }
+
+  void push_back(const T& x)
+  {
+    list_node* n = new list_node(x);
+    insert_node(&head_, n);
     size_++;
   }
 
@@ -92,8 +119,17 @@ class list
   struct list_node : list_node_base
   {
     T value_;
+    list_node(const T& x) : value_(x) {}
     list_node(T&& x) : value_(std::move(x)) {}
   };
+
+  void insert_node(list_node_base* pos, list_node* n)
+  {
+    n->next = pos;
+    n->prev = pos->prev;
+    pos->prev->next = n;
+    pos->prev = n;
+  }
 
   list_node_base head_;
   size_t size_ = 0;
@@ -110,13 +146,14 @@ int main()
 {
   leanstl::list<int> li;
   li.push_front(43);
-  printf("front=%d\n", li.front());
   li.push_front(82);
-  printf("front=%d\n", li.front());
-  // li.push_back(19);
+  li.push_back(19);
 
-  for (auto x : li)
+  leanstl::list<int> lic(li);
+  for (auto x : lic)
     printf("%d\n", x);
+
+  leanstl::list<int> lim(std::move(li));
 
   leanstl::list<std::string> ls;
   ls.push_front("hello");

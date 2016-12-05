@@ -1,0 +1,90 @@
+--- list01.cc	2016-12-03 15:57:44.199779537 -0800
++++ list01alt.cc	2016-12-03 15:58:29.494322932 -0800
+@@ -12,6 +12,18 @@
+ {
+   list_node_base* next;
+   list_node_base* prev;
++
++  // prevent deleting a pointer of list_node_base* which actually points to a list_node<T>
++  // GCC had bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54812 on this, fixed in 4.9.0
++ protected:
++  ~list_node_base() = default;
++};
++
++template <typename T>
++struct list_node : list_node_base
++{
++  T value_;
++  list_node(T&& x) : value_(std::move(x)) {}
+ };
+ 
+ template <typename T>
+@@ -19,6 +31,7 @@
+ {
+  public:
+   list()
++    : head_(0)
+   {
+     head_.next = &head_;
+     head_.prev = &head_;
+@@ -28,7 +41,7 @@
+   {
+     for (list_node_base* n = head_.next; n != &head_;)
+     {
+-      list_node* tod = static_cast<list_node*>(n);
++      list_node<T>* tod = static_cast<list_node<T>*>(n);
+       n = n->next;
+       delete tod;
+     }
+@@ -37,38 +50,29 @@
+   list(const list& rhs) = delete;
+   void operator=(const list& rhs) = delete;
+ 
+-  // Effective Modern C++, Item 41.
+   void push_front(T x)
+   {
+-    list_node* n = new list_node(std::move(x));
++    list_node<T>* n = new list_node<T>(std::move(x));
+     n->next = head_.next;
+     n->next->prev = n;
+     head_.next = n;
+     n->prev = &head_;
+-    size_++;
++    head_.value_++;  // size++
+   }
+ 
+   T& front()
+   {
+-    return static_cast<list_node*>(head_.next)->value_;
++    return static_cast<list_node<T>*>(head_.next)->value_;
+   }
+ 
+  private:
+-  struct list_node : list_node_base
+-  {
+-    T value_;
+-    list_node(T&& x) : value_(std::move(x)) {}
+-  };
+-
+-  list_node_base head_;
+-  size_t size_ = 0;
++  list_node<size_t> head_;  // size is head_.value_
+ };
+ 
+ }  // namespace leanstl
+ 
+ ///////////////////////////////////////  main()  ////////////////////////////
+ 
+-#include <memory>
+ #include <string>
+ 
+ int main()
+@@ -82,8 +86,4 @@
+   leanstl::list<std::string> ls;
+   ls.push_front("hello");
+   printf("front=%s\n", ls.front().c_str());
+-
+-  leanstl::list<std::unique_ptr<double>> lu;
+-  lu.push_front(std::unique_ptr<double>(new double(5.0)));  // make_unique in C++14
+-  printf("front=%f\n", *lu.front());
+ }

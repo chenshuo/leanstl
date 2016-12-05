@@ -1,0 +1,39 @@
+--- list01.cc	2016-12-03 15:57:44.199779537 -0800
++++ list01err1.cc	2016-12-01 07:19:44.396657431 -0800
+@@ -26,9 +26,10 @@
+ 
+   ~list()
+   {
++    // WRONG: delete base pointer without virtual dtor
+     for (list_node_base* n = head_.next; n != &head_;)
+     {
+-      list_node* tod = static_cast<list_node*>(n);
++      list_node_base* tod = n;
+       n = n->next;
+       delete tod;
+     }
+@@ -37,7 +38,6 @@
+   list(const list& rhs) = delete;
+   void operator=(const list& rhs) = delete;
+ 
+-  // Effective Modern C++, Item 41.
+   void push_front(T x)
+   {
+     list_node* n = new list_node(std::move(x));
+@@ -68,7 +68,6 @@
+ 
+ ///////////////////////////////////////  main()  ////////////////////////////
+ 
+-#include <memory>
+ #include <string>
+ 
+ int main()
+@@ -82,8 +81,4 @@
+   leanstl::list<std::string> ls;
+   ls.push_front("hello");
+   printf("front=%s\n", ls.front().c_str());
+-
+-  leanstl::list<std::unique_ptr<double>> lu;
+-  lu.push_front(std::unique_ptr<double>(new double(5.0)));  // make_unique in C++14
+-  printf("front=%f\n", *lu.front());
+ }
