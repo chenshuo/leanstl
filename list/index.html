@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>List - Write your own lean STL</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "List";
+    var mkdocs_page_input_path = "list.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Write your own lean STL</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Containers</span></p>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">List</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#list00-data-structure">list00: data structure</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#list01-destructor">list01: destructor</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#mistake-use-after-free">Mistake: use-after-free</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mistake-delete-pointer-of-list_node_base">Mistake: delete pointer of list_node_base*</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#list01alt-list_node_base-with-protected-destructor">list01alt: list_node_base with protected destructor</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#list02-iterator">list02: iterator</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#list02const-const_iterator">list02const: const_iterator</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#list03-copy-control">list03: copy control</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#mistake">Mistake</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#list04-more-constructors">list04: more constructors</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#mistake_1">Mistake</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#inputiterator-vs-integer">InputIterator vs. Integer</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Write your own lean STL</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Containers &raquo;</li>
+        
+      
+    
+    <li>List</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="doubly-linked-list-listt">Doubly Linked List: <code>list&lt;T&gt;</code></h1>
+<p><img alt="" src="../list-tut.png" /></p>
+<h2 id="list00-data-structure">list00: data structure</h2>
+<p><img alt="node" src="../listnode.png" /></p>
+<p>Doubly linked list:
+<img alt="list" src="../list.png" /></p>
+<p>list00.cc:</p>
+<pre><code class="cpp">namespace leanstl
+{
+
+struct list_node_base
+{
+  list_node_base* next;
+  list_node_base* prev;
+};
+
+template &lt;typename T&gt;
+class list
+{
+ public:
+  list()
+  {
+    head_.next = &amp;head_;
+    head_.prev = &amp;head_;
+  }
+
+ private:
+  struct list_node : list_node_base
+  {
+    T value_;
+  };
+
+  list_node_base head_;
+  size_t size_ = 0;
+};
+
+}  // namespace leanstl
+</code></pre>
+
+<p>Object sizes on 64-bit Linux.</p>
+<pre><code>sizeof void*:           8
+sizeof size_t:          8
+sizeof list_node_base: 16
+sizeof list:           24
+
+T = int
+     sizeof T:          4
+     sizeof list_node: 24
+
+T = std::string
+     sizeof T:          8
+     sizeof list_node: 24
+
+T = std::vector&lt;int&gt;
+     sizeof T:         24
+     sizeof list_node: 40
+</code></pre>
+
+<p>Object sizes on 32-bit Linux.</p>
+<pre><code>sizeof void*:           4
+sizeof size_t:          4
+sizeof list_node_base:  8
+sizeof list:           12
+
+T = int
+     sizeof T:          4
+     sizeof list_node: 12
+
+T = std::string
+     sizeof T:          4
+     sizeof list_node: 12
+
+T = std::vector&lt;int&gt;
+     sizeof T:         12
+     sizeof list_node: 20
+</code></pre>
+
+<h2 id="list01-destructor">list01: destructor</h2>
+<pre><code class="cpp">template &lt;typename T&gt;
+class list
+{
+ public:
+  list()
+  {
+    head_.next = &amp;head_;
+    head_.prev = &amp;head_;
+  }
+
+  ~list()
+  {
+    for (list_node_base* n = head_.next; n != &amp;head_;)
+    {
+      list_node* tod = static_cast&lt;list_node*&gt;(n);
+      n = n-&gt;next;
+      delete tod;
+    }
+  }
+
+  list(const list&amp; rhs) = delete;
+  void operator=(const list&amp; rhs) = delete;
+
+  // Tentative, so that we can test non-empty lists
+  void push_front(T x)
+  {
+    list_node* n = new list_node(std::move(x));
+    n-&gt;next = head_.next;
+    n-&gt;next-&gt;prev = n;
+    head_.next = n;
+    n-&gt;prev = &amp;head_;
+    size_++;
+  }
+
+  T&amp; front()
+  {
+    return static_cast&lt;list_node*&gt;(head_.next)-&gt;value_;
+  }
+
+ private:
+  struct list_node : list_node_base
+  {
+    T value_;
+    list_node(T&amp;&amp; x) : value_(std::move(x)) {}
+  };
+
+  list_node_base head_;
+  size_t size_ = 0;
+};
+</code></pre>
+
+<h3 id="mistake-use-after-free">Mistake: use-after-free</h3>
+<p>list01err0.cc</p>
+<pre><code class="cpp">  ~list()
+  {
+    // WRONG: use-after-free
+    for (list_node_base* n = head_.next; n != &amp;head_; n = n-&gt;next)
+    {
+      delete static_cast&lt;list_node*&gt;(n);
+    }
+  }
+</code></pre>
+
+<pre><code class="cpp">int main()
+{
+  leanstl::list&lt;int&gt; li;
+  li.push_front(43);
+  printf(&quot;front=%d\n&quot;, li.front());
+}
+</code></pre>
+
+<pre><code>$ code/bin/list01err0
+front=43
+Segmentation fault (core dumped)
+
+$ gdb code/bin/list01err0 core
+Core was generated by `code/bin/list01err0'.
+Program terminated with signal SIGSEGV, Segmentation fault.
+#0  0x0000000000400847 in leanstl::list&lt;int&gt;::~list (this=0x7ffd3dff5da0) at list01err0.cc:30
+30          for (list_node_base* n = head_.next; n != &amp;head_; n = n-&gt;next)
+
+(gdb) p n
+$1 = (leanstl::list_node_base *) 0x0
+
+(gdb) p *this
+$2 = {
+  head_ = {
+    next = 0x181e010,
+    prev = 0x181e010
+  },
+  size_ = 1
+}
+
+(gdb) p *head_.next
+$3 = {
+  next = 0x0,
+  prev = 0x7ffd3dff5da0
+}
+</code></pre>
+
+<p>Some clever person finds a way to avoid coredump, by deleting from tail to head.</p>
+<p>list01err0hack.cc</p>
+<pre><code class="cpp">  ~list()
+  {
+    // STILL WRONG: use-after-free
+    for (list_node_base* n = head_.prev; n != &amp;head_; n = n-&gt;prev)
+    {
+      delete static_cast&lt;list_node*&gt;(n);
+    }
+  }
+</code></pre>
+
+<p>Valgrind</p>
+<pre><code>==56399== Invalid read of size 8
+==56399==    at 0x400847: leanstl::list&lt;int&gt;::~list() (list01err0.cc:30)
+==56399==    by 0x4007C6: main (list01err0.cc:75)
+==56399==  Address 0x5a02040 is 0 bytes inside a block of size 24 free'd
+==56399==    at 0x4C2A360: operator delete(void*) (vg_replace_malloc.c:507)
+==56399==    by 0x400842: leanstl::list&lt;int&gt;::~list() (list01err0.cc:32)
+==56399==    by 0x4007C6: main (list01err0.cc:75)
+</code></pre>
+
+<p>Address sanitizer</p>
+<pre><code>$ bin/list01err0asan
+front=43
+=================================================================
+==57074==ERROR: AddressSanitizer: heap-use-after-free on address 0x60300000efe0 at pc 0x400de5 bp 0x7ffe324e9ee0 sp 0x7ffe324e9ed8
+READ of size 8 at 0x60300000efe0 thread T0
+    #0 0x400de4 in leanstl::list&lt;int&gt;::~list() code/list01err0.cc:30
+    #1 0x400c3f in main code/list01err0.cc:73
+    #2 0x7f19eb9f7b44 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x21b44)
+    #3 0x400a78 (code/bin/list01err0asan+0x400a78)
+
+0x60300000efe0 is located 0 bytes inside of 24-byte region [0x60300000efe0,0x60300000eff8)
+freed by thread T0 here:
+    #0 0x7f19ec5f8477 in operator delete(void*) (/usr/lib/x86_64-linux-gnu/libasan.so.1+0x55477)
+    #1 0x400dc3 in leanstl::list&lt;int&gt;::~list() code/list01err0.cc:32
+    #2 0x400c3f in main code/list01err0.cc:73
+    #3 0x7f19eb9f7b44 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x21b44)
+
+previously allocated by thread T0 here:
+    #0 0x7f19ec5f7fff in operator new(unsigned long) (/usr/lib/x86_64-linux-gnu/libasan.so.1+0x54fff)
+    #1 0x400e34 in leanstl::list&lt;int&gt;::push_front(int) code/list01err0.cc:41
+    #2 0x400bda in main code/list01err0.cc:72
+    #3 0x7f19eb9f7b44 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x21b44)
+
+SUMMARY: AddressSanitizer: heap-use-after-free code/list01err0.cc:30 leanstl::list&lt;int&gt;::~list()
+</code></pre>
+
+<h3 id="mistake-delete-pointer-of-list_node_base">Mistake: delete pointer of <code>list_node_base*</code></h3>
+<p>list01err1.cc</p>
+<pre><code class="cpp">  ~list()
+  {
+    // WRONG: delete base pointer without virtual dtor
+    for (list_node_base* n = head_.next; n != &amp;head_;)
+    {
+      list_node_base* tod = n;
+      n = n-&gt;next;
+      delete tod;
+    }
+  }
+</code></pre>
+
+<p>TODO: quote standard on this undefined behavior.</p>
+<p>Valgrind</p>
+<pre><code>==56456== HEAP SUMMARY:
+==56456==     in use at exit: 30 bytes in 1 blocks
+==56456==   total heap usage: 4 allocs, 3 frees, 102 bytes allocated
+==56456==
+==56456== LEAK SUMMARY:
+==56456==    definitely lost: 30 bytes in 1 blocks
+</code></pre>
+
+<p>Address sanitizer (clang 3.9.0)</p>
+<pre><code>==57346==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 30 byte(s) in 1 object(s) allocated from:
+    #0 0x4e7e7b  (code/bin/list01err1asan+0x4e7e7b)
+    #1 0x7fa4984c1e98  (/usr/lib/x86_64-linux-gnu/libstdc++.so.6+0xbee98)
+
+SUMMARY: AddressSanitizer: 30 byte(s) leaked in 1 allocation(s).
+</code></pre>
+
+<p>Double mistake:</p>
+<pre><code class="cpp">  ~list()
+  {
+    // DOUBLY WRONG
+    for (list_node_base* n = head_.next; n != &amp;head_; n = n-&gt;next)
+    {
+      delete n;
+    }
+  }
+</code></pre>
+
+<p>Execrise: try memory checker with this double error.</p>
+<h3 id="list01alt-list_node_base-with-protected-destructor">list01alt: <code>list_node_base</code> with <code>protected</code> destructor</h3>
+<pre><code class="cpp">struct list_node_base
+{
+  list_node_base* next;
+  list_node_base* prev;
+
+  // prevent deleting a pointer of list_node_base* which actually points to a list_node&lt;T&gt;
+  // GCC had bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54812 on this, fixed in 4.9.0
+ protected:
+  ~list_node_base() = default;
+};
+
+template &lt;typename T&gt;
+struct list_node : list_node_base
+{
+  T value_;
+  list_node(T&amp;&amp; x) : value_(std::move(x)) {}
+};
+
+template &lt;typename T&gt;
+class list
+{
+ public:
+  list()
+    : head_(0)
+  {
+    head_.next = &amp;head_;
+    head_.prev = &amp;head_;
+  }
+
+ private:
+  list_node&lt;size_t&gt; head_;  // size is head_.value_
+};
+</code></pre>
+
+<p>TODO: Why not virtual dtor?</p>
+<p>Site note: GCC <a href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54812">Bug 54812</a></p>
+<pre><code class="cpp">struct Base
+{
+ private:
+  ~Base() = default;
+};
+
+int main()
+{
+  Base* p = new Base;
+  delete p;
+}
+</code></pre>
+
+<h2 id="list02-iterator">list02: iterator</h2>
+<p>list02.cc:</p>
+<pre><code class="cpp">template &lt;typename T&gt;
+class list
+{
+ public:
+  class iterator
+  {
+   public:
+    iterator(list_node_base* n = nullptr) : node_(n) {}
+    T&amp; operator*() { return *operator-&gt;(); }
+    T* operator-&gt;() { return &amp;static_cast&lt;list_node*&gt;(node_)-&gt;value_; }
+    iterator&amp; operator++() { node_ = node_-&gt;next; return *this; }
+    iterator operator++(int) { iterator old = *this; operator++(); return old; }
+    iterator&amp; operator--() { node_ = node_-&gt;prev; return *this; }
+    iterator operator--(int) { iterator old = *this; operator--(); return old; }
+    bool operator==(iterator rhs) const { return node_ == rhs.node_; }
+    bool operator!=(iterator rhs) const { return node_ != rhs.node_; }
+
+   private:
+    list_node_base* node_;
+  };
+
+  iterator begin() { return iterator(head_.next); }
+  iterator end() { return iterator(&amp;head_); }
+};
+</code></pre>
+
+<h3 id="list02const-const_iterator">list02const: <code>const_iterator</code></h3>
+<p>list02const.cc:</p>
+<pre><code class="cpp">  class const_iterator
+  {
+   public:
+    const_iterator(const list_node_base* n = nullptr) : node_(n) {}
+    const T&amp; operator*() { return *operator-&gt;(); }
+    const T* operator-&gt;() { return &amp;static_cast&lt;const list_node*&gt;(node_)-&gt;value_; }
+    const_iterator&amp; operator++() { node_ = node_-&gt;next; return *this; }
+    const_iterator operator++(int) { const_iterator old = *this; operator++(); return old; }
+    const_iterator&amp; operator--() { node_ = node_-&gt;prev; return *this; }
+    const_iterator operator--(int) { const_iterator old = *this; operator--(); return old; }
+    bool operator==(const_iterator rhs) const { return node_ == rhs.node_; }
+    bool operator!=(const_iterator rhs) const { return node_ != rhs.node_; }
+
+   private:
+    const list_node_base* node_;
+  };
+</code></pre>
+
+<p>CRTP ?</p>
+<h2 id="list03-copy-control">list03: copy control</h2>
+<p>list03.cc:</p>
+<pre><code class="cpp">template &lt;typename T&gt;
+class list
+{
+ public:
+  list()
+  {
+    init_head();
+  }
+
+  list(const list&amp; rhs) : list()
+  {
+    for (const T&amp; x: rhs)
+    {
+      push_back(x);
+    }
+  }
+
+  list(list&amp;&amp; rhs) : list() { take_over(rhs); }
+  // Effective Modern C++, Item 41.
+  list&amp; operator=(list rhs) { swap(rhs); return *this; }
+
+  void swap(list&amp; rhs)
+  {
+    list tmp(std::move(rhs));
+    rhs.take_over(*this);
+    take_over(tmp);
+  }
+
+  void push_front(T x)
+  {
+    list_node* n = new list_node(std::move(x));
+    insert_node(head_.next, n);
+    size_++;
+  }
+
+  void push_back(const T&amp; x)
+  {
+    list_node* n = new list_node(x);
+    insert_node(&amp;head_, n);
+    size_++;
+  }
+
+ private:
+  struct list_node : list_node_base
+  {
+    T value_;
+    list_node(const T&amp; x) : value_(x) {}
+    list_node(T&amp;&amp; x) : value_(std::move(x)) {}
+  };
+
+  void insert_node(list_node_base* pos, list_node* n)
+  {
+    n-&gt;next = pos;
+    n-&gt;prev = pos-&gt;prev;
+    pos-&gt;prev-&gt;next = n;
+    pos-&gt;prev = n;
+  }
+
+  void init_head()
+  {
+    head_.next = &amp;head_;
+    head_.prev = &amp;head_;
+  }
+
+  void take_over(list&amp; rhs)
+  {
+    assert(size_ == 0);
+    assert(head_.next == &amp;head_);
+    assert(head_.prev == &amp;head_);
+
+    if (rhs.size_ &gt; 0)
+    {
+      head_.next = rhs.head_.next;
+      head_.prev = rhs.head_.prev;
+      head_.next-&gt;prev = &amp;head_;
+      head_.prev-&gt;next = &amp;head_;
+      rhs.init_head();
+      size_ = rhs.size_;
+      rhs.size_ = 0;
+    }
+  }
+
+  list_node_base head_;
+  size_t size_ = 0;
+};
+</code></pre>
+
+<h3 id="mistake">Mistake</h3>
+<pre><code class="cpp">  list(const list&amp; rhs)  // WRONG: head_ is uninitialized
+  {
+    for (const T&amp; x: rhs)
+    {
+      push_back(x);
+    }
+  }
+</code></pre>
+
+<p>TODO: memory sanitizer and Valgrind</p>
+<p>Composition vs. inheriance</p>
+<pre><code class="cpp">class list_base
+{
+ protected:
+  list_base()
+  {
+    init_head();
+  }
+
+  ~list_base()
+  {
+    if (size_ == 0)
+    {
+      assert(head_.next == &amp;head_);
+      assert(head_.prev == &amp;head_);
+    }
+  }
+
+  void init_head()
+  {
+    head_.next = &amp;head_;
+    head_.prev = &amp;head_;
+  }
+
+  list_node_base head_;
+  size_t size_ = 0;
+};
+</code></pre>
+
+<pre><code class="cpp">template &lt;typename T&gt;
+class list : private list_base
+{
+ public:
+  list() {}
+
+  list(const list&amp; rhs)
+  {
+    for (const T&amp; x: rhs)
+    {
+      push_back(x);
+    }
+  }
+
+  list(list&amp;&amp; rhs) { take_over(rhs); }
+</code></pre>
+
+<h2 id="list04-more-constructors">list04: more constructors</h2>
+<pre><code class="cpp">  explicit list(size_t n)
+  {
+    for (size_t i = 0; i &lt; n; ++i)
+      insert_node(&amp;head_, new list_node);
+    size_ = n;
+  }
+
+  list(size_t n, const T&amp; value)
+  {
+    for (size_t i = 0; i &lt; n; ++i)
+      push_back(value);
+  }
+</code></pre>
+
+<pre><code class="cpp">  struct list_node : list_node_base
+  {
+    T value_;
+    list_node() : value_() {}
+    list_node(const T&amp; x) : value_(x) {}
+    list_node(T&amp;&amp; x) : value_(std::move(x)) {}
+  };
+</code></pre>
+
+<h3 id="mistake_1">Mistake</h3>
+<pre><code class="cpp">  struct list_node : list_node_base
+  {
+    T value_;
+    list_node() {}  // WRONG: value_ is unitialized for primitive types
+    list_node(const T&amp; x) : value_(x) {}
+    list_node(T&amp;&amp; x) : value_(std::move(x)) {}
+  };
+</code></pre>
+
+<p>TODO: Valgrind</p>
+<p>But memory sanitizer doesn't catch this.</p>
+<h3 id="inputiterator-vs-integer">InputIterator vs. Integer</h3>
+<pre><code class="cpp">  list(const list&amp; rhs) : list(rhs.begin(), rhs.end()) {}
+
+  template &lt;typename InputIterator&gt;
+  list(InputIterator first, InputIterator last)
+  {
+    initialize(first, last, typename std::is_integral&lt;InputIterator&gt;::type());
+  }
+
+  list(std::initializer_list&lt;T&gt; il) : list(il.begin(), il.end()) {}
+
+  template &lt;typename InputIterator&gt;
+  void initialize(InputIterator first, InputIterator last, std::false_type)
+  {
+    for (; first != last; ++first)
+      push_back(*first);
+  }
+
+  template &lt;typename Integer&gt;
+  void initialize(Integer n, Integer value, std::true_type)
+  {
+    for (Integer i = 0; i &lt; n; ++i)
+      push_back(value);
+  }
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
