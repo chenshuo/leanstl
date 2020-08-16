@@ -1,4 +1,5 @@
 site_name: Write your own lean STL
+google_analytics: ['UA-1220141-6', 'chenshuo.com']
 theme: readthedocs
 pages:
   - Home: index.md
